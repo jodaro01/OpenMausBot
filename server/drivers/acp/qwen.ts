@@ -1,6 +1,4 @@
-// Qwen Code — Alibaba's `qwen --acp` CLI. Custom-only in OpenMausBot:
-// the official pane has no Qwen Cloud catalog; live local hosts land in
-// Custom and are written into ~/.qwen/settings.json modelProviders.
+// Qwen Code — Alibaba's `qwen --acp` CLI.
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -9,7 +7,18 @@ import type { ModelCatalog } from "../../contracts.ts";
 import { decodeInjectId, hostApiKey, localHost, mergeLocalInject } from "../local-inject.ts";
 import { createAcpDriver, type AcpSupport } from "./core.ts";
 
-const EMPTY: ModelCatalog = { default: "", options: [] };
+const STATIC_QWEN_MODELS: ModelCatalog = {
+  default: "qwen3.5-plus",
+  options: [
+    { id: "qwen3.5-plus", label: "Qwen 3.5 Plus" },
+    { id: "qwen3-coder", label: "Qwen 3 Coder" },
+    { id: "qwen2.5-coder-32b", label: "Qwen 2.5 Coder 32B" },
+    { id: "qwen2.5-coder-7b", label: "Qwen 2.5 Coder 7B" },
+    { id: "qwen-max", label: "Qwen Max" },
+    { id: "qwen-plus", label: "Qwen Plus" },
+    { id: "qwen-turbo", label: "Qwen Turbo" },
+  ],
+};
 
 function qwenHome(env: Record<string, string | undefined>): string {
   return join(env.HOME || env.USERPROFILE || homedir(), ".qwen");
@@ -37,7 +46,7 @@ export function ensureQwenInjectModel(
     try {
       settings = JSON.parse(readFileSync(path, "utf8")) as Record<string, unknown>;
     } catch {
-      // Malformed user config — inject into a fresh object rather than fail the turn.
+      // Malformed user config
     }
   }
   const keyName = envKeyFor(inject.host);
@@ -71,25 +80,26 @@ export function ensureQwenInjectModel(
     providers.openai = openai;
     settings.modelProviders = providers;
   }
-  writeFileSync(path, `${JSON.stringify(settings, null, 2)}\n`, { mode: 0o600 });
+  writeFileSync(path, `${JSON.stringify(settings, null, 2)}
+`, { mode: 0o600 });
   try {
     chmodSync(path, 0o600);
   } catch {
-    // Windows ignores POSIX modes; keep the inject even if chmod is unsupported.
+    // Windows ignores POSIX modes
   }
   return inject.model;
 }
 
 async function resolveModels(env: Record<string, string | undefined>): Promise<ModelCatalog> {
-  const catalog = await mergeLocalInject(EMPTY, env);
-  return { default: catalog.options[0]?.id ?? "", options: catalog.options };
+  const catalog = await mergeLocalInject(STATIC_QWEN_MODELS, env);
+  return { default: catalog.options[0]?.id ?? STATIC_QWEN_MODELS.default, options: catalog.options };
 }
 
 const support: AcpSupport = {
   driverKind: "qwenAgent",
   displayName: "Qwen",
-  access: "custom",
-  models: EMPTY,
+  access: "subscription",
+  models: STATIC_QWEN_MODELS,
   resolveModels,
   resolveTurnModel: (model, env) => (model ? ensureQwenInjectModel(model, env) : model),
   defaultCli: "qwen",
@@ -107,7 +117,9 @@ const support: AcpSupport = {
   pickAuthMethod: () => null,
   authFailure: "continue",
   isAuthenticated: () => true,
-  buildPromptText: (turn) => (turn.system ? `${turn.system}\n\n${turn.text}` : turn.text),
+  buildPromptText: (turn) => (turn.system ? `${turn.system}
+
+${turn.text}` : turn.text),
 };
 
 export const QwenAgentDriver = createAcpDriver(support);

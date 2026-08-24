@@ -1,19 +1,8 @@
-// ElevenLabs, the one voice.
-//
-// Everything about talking to the service lives in this file: verifying a
-// key, listing voices, and turning one utterance into mp3 bytes. It runs on
-// the HARNESS, never the renderer, because the key must not leave the
-// server — GET /api/config reports configured-or-not booleans and nothing
-// else, and that invariant is worth more than a saved round trip.
-//
-// One request per utterance rather than the streaming-input WebSocket: the
-// client already splits text into utterances and fetches the next while the
-// current one plays, which gets the same perceived latency with far fewer
-// moving parts — and no socket to leak when a turn is interrupted.
-const API = process.env.OMB_ELEVENLABS_API || "https://api.elevenlabs.io/v1";
-const MODEL = "eleven_flash_v2_5";
-// 64kbps mono is indistinguishable for speech and a third of the bytes
-const FORMAT = "mp3_44100_64";
+// Voice synthesis engine supporting OmniRoute Audio & ElevenLabs.
+// Runs on the HARNESS, never the renderer.
+
+const OMNIROUTE_API = process.env.OMB_OMNIROUTE_API || "http://100.120.12.123:20300/v1";
+const ELEVENLABS_API = process.env.OMB_ELEVENLABS_API || "https://api.elevenlabs.io/v1";
 
 export interface Voice {
   id: string;
@@ -28,77 +17,87 @@ export interface Audio {
 
 export type VerifyResult = { ok: true } | { ok: false; message: string };
 
-async function safeJson(res: Response): Promise<any> {
-  try {
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
+const DEFAULT_OMNI_VOICES: Voice[] = [
+  { id: "alloy", label: "Alloy (OmniRoute)", description: "Natural · Neutral" },
+  { id: "echo", label: "Echo (OmniRoute)", description: "Warm · Balanced" },
+  { id: "fable", label: "Fable (OmniRoute)", description: "Expressive · Clear" },
+  { id: "onyx", label: "Onyx (OmniRoute)", description: "Deep · Authoritative" },
+  { id: "nova", label: "Nova (OmniRoute)", description: "Energetic · Bright" },
+  { id: "shimmer", label: "Shimmer (OmniRoute)", description: "Soft · Gentle" },
+  { id: "sonic-multilingual", label: "Cartesia Sonic (OmniRoute)", description: "Ultra-Low Latency · Multilingual" },
+  { id: "brian", label: "Brian (Audio Combo)", description: "Narrative · Dynamic" },
+  { id: "rachel", label: "Rachel (Audio Combo)", description: "Calm · Conversational" }
+];
 
-/** Prefer ElevenLabs' own words over anything we can invent — it knows the
- * plan, the quota and the model name. Mirrors box.boxErrorMessage. */
-function message(status: number, what: string, body: any): string {
-  const theirs =
-    (typeof body?.detail === "string" && body.detail.trim()) ||
-    (typeof body?.detail?.message === "string" && body.detail.message.trim()) ||
-    (typeof body?.message === "string" && body.message.trim()) ||
-    "";
-  if (status === 401 || status === 403) {
-    // Restricted keys are the common case, not a corner: a key with the
-    // wrong scopes is REAL and still fails, so saying "copy a fresh one"
-    // sends people to regenerate a key that was never the problem.
-    return "ElevenLabs rejected that key. If it's a restricted key, give it the Voices and Text to Speech permissions — or paste an unrestricted one.";
-  }
-  if (status === 429) return theirs || "ElevenLabs is rate-limiting this account — wait a moment and try again.";
-  if (status === 402) return theirs || "ElevenLabs says this account is out of credit.";
-  return theirs ? `${what} failed: ${theirs}` : `${what} failed (${status})`;
-}
-
-/** Check a key before we store it: a rejected credential must fail at the
- * paste, not hours later in another panel with nothing to act on.
- *
- * Checked against /voices, NOT /user. ElevenLabs keys carry per-endpoint
- * scopes, and a key restricted to speech has no `user_read` — verifying
- * there rejects perfectly good keys for a permission this feature never
- * uses (found the hard way, with a real key). /voices is what the settings
- * picker needs next, so it tests exactly the capability that matters. */
 export async function verifyKey(key: string): Promise<VerifyResult> {
+  if (key.startsWith("sk-")) {
+    // OmniRoute / OpenAI compatible key
+    return { ok: true };
+  }
   try {
-    const res = await fetch(`${API}/voices`, {
+    const res = await fetch(`${ELEVENLABS_API}/voices`, {
       headers: { "xi-api-key": key },
-      signal: AbortSignal.timeout(20_000),
+      signal: AbortSignal.timeout(10_000),
     });
     if (res.ok) return { ok: true };
-    return { ok: false, message: message(res.status, "checking that key", await safeJson(res)) };
+    return { ok: false, message: "ElevenLabs rejected that key." };
   } catch {
-    return { ok: false, message: "Couldn't reach ElevenLabs to check that key — check your connection." };
+    return { ok: false, message: "Couldn't reach voice server to check key." };
   }
 }
 
 export async function listVoices(key: string): Promise<Voice[]> {
-  const res = await fetch(`${API}/voices`, {
-    headers: { "xi-api-key": key },
-    signal: AbortSignal.timeout(20_000),
-  });
-  const body = await safeJson(res);
-  if (!res.ok) throw new Error(message(res.status, "listing voices", body));
-  return (body?.voices ?? [])
-    .map((v: any): Voice => ({
-      id: String(v.voice_id ?? ""),
-      label: String(v.name ?? "Voice"),
-      description: [v.labels?.accent, v.labels?.description].filter(Boolean).join(" · ") || undefined,
-    }))
-    .filter((v: Voice) => v.id);
+  if (key.startsWith("sk-")) {
+    return DEFAULT_OMNI_VOICES;
+  }
+  try {
+    const res = await fetch(`${ELEVENLABS_API}/voices`, {
+      headers: { "xi-api-key": key },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (res.ok) {
+      const body = await res.json();
+      return (body?.voices ?? [])
+        .map((v: any): Voice => ({
+          id: String(v.voice_id ?? ""),
+          label: String(v.name ?? "Voice"),
+          description: [v.labels?.accent, v.labels?.description].filter(Boolean).join(" · ") || undefined,
+        }))
+        .filter((v: Voice) => v.id);
+    }
+  } catch {}
+  return DEFAULT_OMNI_VOICES;
 }
 
 export async function synthesize(text: string, voiceId: string, key: string): Promise<Audio> {
-  const res = await fetch(`${API}/text-to-speech/${encodeURIComponent(voiceId)}?output_format=${FORMAT}`, {
+  if (key.startsWith("sk-")) {
+    const res = await fetch(`${OMNIROUTE_API}/audio/speech`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${key}`,
+        "Content-Type": "application/json",
+        "accept": "audio/mpeg"
+      },
+      body: JSON.stringify({
+        model: "Audio Combo",
+        input: text,
+        voice: voiceId || "alloy",
+        response_format: "mp3"
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    if (res.ok) {
+      return { bytes: new Uint8Array(await res.arrayBuffer()), mime: "audio/mpeg" };
+    }
+  }
+
+  // Fallback to standard ElevenLabs
+  const res = await fetch(`${ELEVENLABS_API}/text-to-speech/${encodeURIComponent(voiceId)}?output_format=mp3_44100_64`, {
     method: "POST",
     headers: { "xi-api-key": key, "content-type": "application/json", accept: "audio/mpeg" },
-    body: JSON.stringify({ text, model_id: MODEL }),
+    body: JSON.stringify({ text, model_id: "eleven_flash_v2_5" }),
     signal: AbortSignal.timeout(60_000),
   });
-  if (!res.ok) throw new Error(message(res.status, "speaking", await safeJson(res)));
+  if (!res.ok) throw new Error(`Voice synthesis failed with status ${res.status}`);
   return { bytes: new Uint8Array(await res.arrayBuffer()), mime: "audio/mpeg" };
 }

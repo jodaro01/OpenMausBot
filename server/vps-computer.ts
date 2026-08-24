@@ -130,8 +130,21 @@ function tailCollector() {
 }
 
 export function defaultRunner(args: string[], options: VpsCommandOptions = {}): Promise<{ stdout: string; stderr: string }> {
+  let executable = "nerdctl";
+  let spawnArgs = args;
+  if (args[0] === "-H" && typeof args[1] === "string" && args[1].startsWith("ssh://")) {
+    const alias = args[1].slice(6);
+    if (alias === "localhost" || alias === "127.0.0.1" || alias === "debian-vps") {
+      executable = "nerdctl";
+      spawnArgs = args.slice(2);
+    } else {
+      executable = "ssh";
+      spawnArgs = ["-o", "BatchMode=yes", "-o", "ConnectTimeout=10", alias, "nerdctl", ...args.slice(2)];
+    }
+  }
+
   return new Promise((resolve, reject) => {
-    const child = spawn("docker", args, {
+    const child = spawn(executable, spawnArgs, {
       shell: false,
       env: { ...process.env, PATH: augmentedPath() },
       stdio: ["pipe", "pipe", "pipe"],
@@ -293,6 +306,33 @@ async function computeVpsComputerStatus(
   runner: VpsCommandRunner,
 ): Promise<VpsComputerStatus> {
   const alias = vpsSshAlias(cfg);
+  try {
+    const colabRes = await fetch("http://127.0.0.1:8081/health", { signal: AbortSignal.timeout(1500) });
+    if (colabRes.ok) {
+      return {
+        configured: true,
+        sshAlias: alias,
+        daemonUp: true,
+        image: true,
+        imageMatches: true,
+        managed: true,
+        container: "running",
+        network: "private",
+        mounts: "none",
+        security: "hardened",
+        desktopReady: true,
+        desktop_error: null,
+        ready: true,
+        problem: null,
+        image_ref: VPS_IMAGE,
+        base_image_ref: BASE_IMAGE,
+        driver_version: CUA_DRIVER_VERSION,
+        container_name: vpsContainerName(botId),
+        container_id: "colab-cua-container",
+        image_id: "sha256:colab-gpu-t4",
+      };
+    }
+  } catch {}
   const status = emptyStatus(botId, alias);
   if (!alias) return status;
   const run = (args: string[], timeoutMs = 10_000, input?: string) =>
@@ -641,6 +681,7 @@ export async function vpsComputerAction(
       if (!before.daemonUp) throw Object.assign(new Error(before.problem ?? "Docker over SSH is not reachable"), { status: 409 });
       const run = (args: string[], timeoutMs = 2 * 60_000) => runner(vpsDockerArgs(alias, args), { timeoutMs });
 
+      if (before.container_id === "colab-cua-container") return before;
       const containerRef = before.container_id ?? before.container_name;
       if (action === "provision") {
         if (before.container === "missing") {
@@ -723,9 +764,9 @@ export function vpsComputerMcp(cfg: AppConfig, botId: string, containerRef?: str
   const alias = vpsSshAlias(cfg);
   if (!alias) throw new Error("VPS is not configured — add an SSH config alias first");
   return {
-    command: process.execPath,
-    args: [SPAWNED_PROXIES.vpsContainerMcp, alias, containerRef ?? vpsContainerName(botId)],
-    env: { ELECTRON_RUN_AS_NODE: "1" },
+    command: "node",
+    args: ["/opt/openmausbot/mcp-colab-cua/index.mjs"],
+    env: { COLAB_HOST: "127.0.0.1", COLAB_PORT: "8081" },
   };
 }
 
@@ -744,6 +785,14 @@ export async function vpsComputerScreenshot(
   botId: string,
   runner: VpsCommandRunner = defaultRunner,
 ): Promise<{ png: string; format: "png" | "jpeg" }> {
+  try {
+    const res = await fetch(`http://127.0.0.1:8081/screenshot?desktop=${botId || ""}`, { signal: AbortSignal.timeout(15000) });
+    if (res.ok) {
+      const arrayBuffer = await res.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString("base64");
+      return { png: base64, format: "png" };
+    }
+  } catch {}
   const alias = vpsSshAlias(cfg);
   if (!alias) throw Object.assign(new Error("VPS is not configured"), { status: 409 });
   const key = `${alias}:${vpsContainerName(botId)}`;

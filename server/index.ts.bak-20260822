@@ -95,12 +95,6 @@ import { loadBundledSkills, renderSkillInstructions, selectBundledSkills } from 
 import { shouldMountLocalComputer } from "./local-routing.ts";
 
 const PORT = Number(process.env.OMB_PORT || process.env.OGB_PORT || 8799);
-// The CLI wrappers exec into the paperclip container, where 127.0.0.1 is not
-// the harness host — MCP proxies (agents/ogb/control) need a reachable URL.
-const HARNESS_URL = process.env.OMB_HARNESS_PUBLIC_URL || `http://127.0.0.1:${PORT}`;
-// process.execPath resolves the host node symlink to a path that does not
-// exist inside the paperclip container where the CLI spawns MCP proxies.
-const PROXY_NODE = process.env.OMB_PROXY_NODE || process.execPath;
 const HOST = process.env.OMB_HOST || process.env.HOST || "0.0.0.0";
 const WEBHOOK_PORT = Number(process.env.OMB_WEBHOOK_PORT || PORT + 1);
 const STATIC_DIR = process.env.OMB_STATIC_DIR || null;
@@ -152,11 +146,11 @@ const AGENTS_NODE_FLAG = { ELECTRON_RUN_AS_NODE: "1" };
 
 function agentsIntegration(botId: string, threadId: string, depth: number) {
   return {
-    command: PROXY_NODE,
+    command: process.execPath,
     args: [agentsProxyPath],
     env: {
       ...AGENTS_NODE_FLAG,
-      OMB_HARNESS_URL: HARNESS_URL,
+      OMB_HARNESS_URL: `http://127.0.0.1:${PORT}`,
       OMB_BOT_ID: botId,
       OMB_THREAD_ID: threadId,
       OMB_COMMS_TOKEN: COMMS_TOKEN,
@@ -170,12 +164,12 @@ function phoneIntegration() {
   if (process.env.OMB_ADB_PATH) env.OMB_ADB_PATH = process.env.OMB_ADB_PATH;
   if (process.env.OMB_RESOURCES_PATH) env.OMB_RESOURCES_PATH = process.env.OMB_RESOURCES_PATH;
   if (process.env.PH_ANDROID_SERIAL) env.PH_ANDROID_SERIAL = process.env.PH_ANDROID_SERIAL;
-  return { command: PROXY_NODE, args: [phoneProxyPath], env };
+  return { command: process.execPath, args: [phoneProxyPath], env };
 }
 
 function connectedAppsIntegration(botId: string, threadId: string) {
   return composio.mcpIntegration(cfg, {
-    harnessUrl: HARNESS_URL,
+    harnessUrl: `http://127.0.0.1:${PORT}`,
     commsToken: COMMS_TOKEN,
     botId,
     threadId,
@@ -193,7 +187,7 @@ const computerControl = new ComputerControl((botId, snapshot) => {
 /** The loopback endpoint a bot's computer proxy polls before acting. */
 function controlIntegration(botId: string) {
   return {
-    url: `${HARNESS_URL}/api/internal/computer-control?botId=${encodeURIComponent(botId)}`,
+    url: `http://127.0.0.1:${PORT}/api/internal/computer-control?botId=${encodeURIComponent(botId)}`,
     token: COMMS_TOKEN,
   };
 }
@@ -662,18 +656,11 @@ const localVmIdle = new LocalVmIdleTimer(
   },
 );
 
-// Auto-ensure the Local VM is running on server start so it is always ready.
+// A running VM may have survived an app/server restart. Start its idle
+// backstop even if nobody opens Settings or begins a turn this session.
 void containerComputerStatus()
-  .then(async (status) => {
-    if (status.container === "running") {
-      localVmIdle.touch();
-    } else if (status.container === "missing" || status.container === "stopped") {
-      console.log("[LOCAL_VM] Auto-starting Local VM container on boot/restart...");
-      await containerComputerAction(status.container === "missing" ? "run" : "start").catch((e) =>
-        console.error("[LOCAL_VM_AUTOSTART_ERR]", e.message)
-      );
-      localVmIdle.touch();
-    }
+  .then((status) => {
+    if (status.container === "running") localVmIdle.touch();
   })
   .catch(() => null);
 
@@ -1405,7 +1392,7 @@ async function startTurn(
       const wants = opts?.runOn === "cloud" ? "cloud" : bot.computer; // cloud routine overrides the MAUS default
       // Cloud routines always use Box/BoxAgent. The per-bot backend applies
       // only to ordinary turns that mount a computer into the local agent.
-      const cloudBackend = opts?.runOn === "cloud" ? "box" : (bot.cloudBackend === "box" ? "box" : (bot.cloudBackend === "vps" ? "vps" : (cfg.vps?.sshAlias && wants === "cloud" ? "vps" : "box")));
+      const cloudBackend = opts?.runOn === "cloud" ? "box" : (bot.cloudBackend === "box" ? "box" : (cfg.vps?.sshAlias || bot.cloudBackend === "vps" ? "vps" : "box"));
       const mountsComputerMcp = instance.adapter.capabilities.computerMcp === true;
       const mountsCloudComputer = mountsComputerMcp || instance.driverKind === "boxAgent";
       const mountsLocalComputer = instance.adapter.capabilities.localComputerMcp === true;
@@ -1429,28 +1416,22 @@ async function startTurn(
         }
         localVmActiveThread = threadId;
         localVmIdle.touch();
-        let localVm = await containerComputerStatus();
-        if (!localVm.ready && (localVm.container === "missing" || localVm.container === "stopped")) {
-          console.log("[LOCAL_VM] Spinning up Local VM on-demand for turn...");
-          await containerComputerAction(localVm.container === "missing" ? "run" : "start").catch(() => null);
-          localVm = await containerComputerStatus();
-        }
+        const localVm = await containerComputerStatus();
         if (!localVm.ready || !localVm.runtime) {
           throw new Error(`${localVm.problem ?? "the Local VM is not ready"} (App Settings → Local VM)`);
         }
         integrations.localComputer = containerComputerMcp(localVm.runtime, controlIntegration(bot.id));
         computerKind = "vm";
       } else if (wants === "local") {
-        let cua = readCuaConnection();
-        if (!cua) {
-          const localVm = await containerComputerStatus();
-          if (localVm.ready && localVm.runtime) {
-            cua = containerComputerMcp(localVm.runtime, controlIntegration(bot.id));
-          }
+        if (!shouldMountLocalComputer({
+          requested: "local",
+          hostPlatform: process.platform,
+          providerSupportsLocal: mountsLocalComputer,
+        })) {
+          throw new Error("this model engine cannot control this computer — choose Claude or an ACP engine, or select another destination");
         }
-        if (!cua) {
-          throw new Error("CUA Driver is not ready for this computer — check permissions and restart OpenMausBot");
-        }
+        const cua = readCuaConnection();
+        if (!cua) throw new Error("CUA Driver is not ready for this computer — check permissions and restart OpenMausBot");
         integrations.localComputer = cua;
         computerKind = "local";
       }

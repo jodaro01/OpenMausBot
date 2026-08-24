@@ -1,14 +1,11 @@
-// Built-in driver registration — Full 25 CLI Fleet powered by OmniRoute & Native CLI Engines
+// Built-in driver registration — Full 23 CLI Fleet powered by OmniRoute & Native CLI Engines
 import type { AnyProviderDriver } from "../contracts.ts";
+import { AntigravityDriver } from "./antigravity.ts";
 import { BoxAgentDriver } from "./boxagent.ts";
-import { OpenAICompatDriver } from "./openai-compat.ts";
+import { ClaudeDriver } from "./claude.ts";
 import { createOmniRouteDriver } from "./omniroute-bridge.ts";
-import { PaperclipDriver } from "./paperclip.ts";
 
-export const ClaudeDriver = createOmniRouteDriver({ driverKind: "claudeAgent", displayName: "Claude Code" });
 export const CodexDriver = createOmniRouteDriver({ driverKind: "codex", displayName: "OpenAI Codex" });
-export const AntigravityDriver = createOmniRouteDriver({ driverKind: "antigravityAgent", displayName: "Google Antigravity" });
-
 export const GrokDriver = createOmniRouteDriver({ driverKind: "grok", displayName: "Grok CLI" });
 export const GrokAgentDriver = createOmniRouteDriver({ driverKind: "grokAgent", displayName: "Grok Build" });
 export const GeminiAgentDriver = createOmniRouteDriver({ driverKind: "geminiAgent", displayName: "Gemini CLI" });
@@ -26,9 +23,6 @@ export const OllamaDriver = createOmniRouteDriver({ driverKind: "ollamaAgent", d
 export const OpenRouterDriver = createOmniRouteDriver({ driverKind: "openrouterAgent", displayName: "OpenRouter Gateway", access: "api" });
 export const MiniMaxDriver = createOmniRouteDriver({ driverKind: "minimaxAgent", displayName: "MiniMax Engine", access: "api" });
 
-export const PiAgentDriver = createOmniRouteDriver({ driverKind: "piAgent", displayName: "Pi Code" });
-export const CursorAgentDriver = createOmniRouteDriver({ driverKind: "cursorAgent", displayName: "Cursor CLI" });
-
 export const OmpDriver = createOmniRouteDriver({ driverKind: "ompAgent", displayName: "Open Model Protocol" });
 export const ZihinDriver = createOmniRouteDriver({ driverKind: "zihinAgent", displayName: "Zihin Cognitive" });
 export const AgrentingDriver = createOmniRouteDriver({ driverKind: "agrentingAgent", displayName: "Agrenting Agency" });
@@ -36,7 +30,6 @@ export const ErrandDriver = createOmniRouteDriver({ driverKind: "errandAgent", d
 export const MnemopayDriver = createOmniRouteDriver({ driverKind: "mnemopayAgent", displayName: "Mnemopay Web3" });
 
 export const BUILT_IN_DRIVERS: readonly AnyProviderDriver[] = [
-  PaperclipDriver,
   ClaudeDriver,
   CodexDriver,
   AntigravityDriver,
@@ -58,9 +51,6 @@ export const BUILT_IN_DRIVERS: readonly AnyProviderDriver[] = [
   OllamaDriver,
   OpenRouterDriver,
   MiniMaxDriver,
-  PiAgentDriver,
-  OpenAICompatDriver,
-  CursorAgentDriver,
   OmpDriver,
   ZihinDriver,
   AgrentingDriver,

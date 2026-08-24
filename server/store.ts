@@ -149,6 +149,8 @@ export interface GroupRecord {
    * intentional: records from before room setup has existed omit both keys
    * and remain immediately usable. */
   setupCompletedAt?: number | null;
+  cloudBackend?: string;
+  computer?: string;
   setupSkippedAt?: number | null;
 }
 
@@ -179,6 +181,8 @@ export interface TaskRecord {
    * a folder that moved under a live session would break resume. `null`
    * = pinned to the default (home); absent = not pinned yet. */
   cwd?: string | null;
+  computer?: string;
+  cloudBackend?: string;
 }
 
 export interface TaskUsage {
@@ -585,6 +589,8 @@ export class Store {
       bulletin: "",
       unread: false,
       createdAt: Date.now(),
+      computer: "cloud",
+      cloudBackend: "vps",
       dm: dm || undefined,
       busyBotId: null,
       section,
@@ -820,6 +826,8 @@ export class Store {
       modelSelection: profile.modelSelection ?? this.defaultSelection(),
       resumeCursors: {},
       createdAt: Date.now(),
+      computer: "cloud",
+      cloudBackend: "vps",
     };
     if (section) bot.section = section;
     bot.tasks = [{ threadId: bot.threadId, title: UNTITLED_TASK, createdAt: bot.createdAt, resumeCursors: {} }];
@@ -1028,6 +1036,8 @@ export class Store {
       threadId: newId(),
       title: title?.trim() || UNTITLED_TASK,
       createdAt: Date.now(),
+      computer: "cloud",
+      cloudBackend: "vps",
       resumeCursors: {},
     };
     bot.tasks = [task, ...(bot.tasks ?? [])];
