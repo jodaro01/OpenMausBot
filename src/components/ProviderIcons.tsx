@@ -124,6 +124,153 @@ export function PiMark({ size = 16, className }: IconProps) {
   );
 }
 
+
+/** Official gemini mark. */
+export function GeminiMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#8E75B2" className={className} aria-hidden>
+            <path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" />
+          </svg>
+  );
+}
+
+/** Official copilot mark. */
+export function CopilotMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#f4f4f5" className={className} aria-hidden>
+            <path d="M23.922 16.997C23.061 18.492 18.063 22.02 12 22.02 5.937 22.02.939 18.492.078 16.997A.641.641 0 0 1 0 16.741v-2.869a.883.883 0 0 1 .053-.22c.372-.935 1.347-2.292 2.605-2.656.167-.429.414-1.055.644-1.517a10.098 10.098 0 0 1-.052-1.086c0-1.331.282-2.499 1.132-3.368.397-.406.89-.717 1.474-.952C7.255 2.937 9.248 1.98 11.978 1.98c2.731 0 4.767.957 6.166 2.093.584.235 1.077.546 1.474.952.85.869 1.132 2.037 1.132 3.368 0 .368-.014.733-.052 1.086.23.462.477 1.088.644 1.517 1.258.364 2.233 1.721 2.605 2.656a.841.841 0 0 1 .053.22v2.869a.641.641 0 0 1-.078.256Zm-11.75-5.992h-.344a4.359 4.359 0 0 1-.355.508c-.77.947-1.918 1.492-3.508 1.492-1.725 0-2.989-.359-3.782-1.259a2.137 2.137 0 0 1-.085-.104L4 11.746v6.585c1.435.779 4.514 2.179 8 2.179 3.486 0 6.565-1.4 8-2.179v-6.585l-.098-.104s-.033.045-.085.104c-.793.9-2.057 1.259-3.782 1.259-1.59 0-2.738-.545-3.508-1.492a4.359 4.359 0 0 1-.355-.508Zm2.328 3.25c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Zm-5 0c.549 0 1 .451 1 1v2c0 .549-.451 1-1 1-.549 0-1-.451-1-1v-2c0-.549.451-1 1-1Z" />
+          </svg>
+  );
+}
+
+/** Official ollama mark. */
+export function OllamaMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#f4f4f5" className={className} aria-hidden>
+            <path d="M6 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm-6 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm9-5.024S16.545-1.675 0 8.914 21 12.976 21 12.976Zm-2.687.461A9.094 9.094 0 0 1 12 14.364a9.094 9.094 0 0 1-6.313-2.927 9.158 9.158 0 0 1 12.626 0Z" />
+          </svg>
+  );
+}
+
+/** Official openrouter mark. */
+export function OpenrouterMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#94A3B8" className={className} aria-hidden>
+            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Zm-1.5 5.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm-1.5 5.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm1.5 5.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z" />
+          </svg>
+  );
+}
+
+/** Official minimax mark. */
+export function MinimaxMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#E73562" className={className} aria-hidden>
+            <path d="M12 2L2 7l10 5 10-5-10-5ZM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+  );
+}
+
+/** Official cline mark. */
+export function ClineMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#f4f4f5" className={className} aria-hidden>
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm-1 15.5v-11l6 5.5-6 5.5Z" />
+          </svg>
+  );
+}
+
+/** Official kiro mark. */
+export function KiroMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="272 202 654 795" fill="#9046FF" className={className} aria-hidden>
+            <path d="M398.554 818.914C316.315 1001.03 491.477 1046.74 620.672 940.156C658.687 1059.66 801.052 970.473 852.234 877.795C964.787 673.567 919.318 465.357 907.64 422.374C827.637 129.443 427.623 128.946 358.8 423.865C342.651 475.544 342.402 534.18 333.458 595.051C328.986 625.86 325.507 645.488 313.83 677.785C306.873 696.424 297.68 712.819 282.773 740.645C259.915 783.881 269.604 867.113 387.87 823.883L399.051 818.914H398.554Z" />
+          </svg>
+  );
+}
+
+/** Official letta mark. */
+export function LettaMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 224 224" fill="#e4e4e7" className={className} aria-hidden>
+            <path d="M168.904 42.8702V17H54.9746V42.8702C54.9746 49.5579 49.558 54.9746 42.8702 54.9746H17V168.904H42.8702C49.558 168.904 54.9746 174.32 54.9746 181.008V206.878H168.904V181.008C168.904 174.32 174.32 168.904 181.008 168.904H206.878V54.9746H181.008C174.32 54.9746 168.904 49.5579 168.904 42.8702ZM168.904 156.794C168.904 163.482 163.487 168.898 156.799 168.898H67.0842C60.3965 168.898 54.9799 163.482 54.9799 156.794V67.079C54.9799 60.3912 60.3965 54.9746 67.0842 54.9746H156.799C163.487 54.9746 168.904 60.3912 168.904 67.079V156.794Z" />
+          </svg>
+  );
+}
+
+/** Official omp mark. */
+export function OmpMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" className={className} aria-hidden>
+            <defs>
+            <linearGradient id="ompg" x1={0} y1={0} x2={1} y2={1}>
+            <stop offset={0} stopColor="#ed4abf" />
+            <stop offset={.5} stopColor="#9b4dff" />
+            <stop offset={1} stopColor="#5ad8e6" />
+          </linearGradient>
+          </defs>
+            <rect width={64} height={64} rx={12} fill="#0f0a14" />
+            <path fill="url(#ompg)" d="M14 16h36v8H40v32h-8V24h-6v22h-8V24h-4z" />
+          </svg>
+  );
+}
+
+/** Official zihin mark. */
+export function ZihinMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 200 173" className={className} aria-hidden>
+            <path d="M134.16 86.44C123.38 86.44 113.07 88.41 103.55 92.01C103.67 90.17 103.73 88.31 103.73 86.44C103.73 59.14 91.07 34.79 71.3 18.95C76.17 17.86 81.24 17.29 86.44 17.29C117.09 17.29 143.07 37.22 152.15 64.83H170.16C160.56 27.55 126.72 0 86.44 0C38.7 0 0 38.7 0 86.44C0 120.44 19.63 149.85 48.17 163.97C59.71 169.68 72.7 172.88 86.44 172.88C131.17 172.88 167.97 138.9 172.43 95.35C160.89 89.64 147.9 86.44 134.16 86.44Z" fill="#004B1C" />
+            <path d="M17.2898 86.44C17.2898 60.84 31.1998 38.5 51.8598 26.54C72.5298 38.5 86.4398 60.84 86.4398 86.44C86.4398 91.79 85.8298 96.9901 84.6798 101.99C69.3798 112.69 57.6998 128.21 51.8598 146.35C31.1898 134.39 17.2798 112.04 17.2798 86.45L17.2898 86.44Z" fill="#8DC63F" />
+            <path d="M86.4399 155.6C80.0099 155.6 73.7899 154.72 67.8799 153.08C76.3999 124.54 102.85 103.73 134.16 103.73C140.59 103.73 146.81 104.61 152.72 106.25C144.2 134.79 117.75 155.6 86.4399 155.6Z" fill="#F37021" />
+            <path d="M152.72 106.25L67.8799 153.08C73.7899 154.72 80.0099 155.6 86.4399 155.6C117.75 155.6 144.2 134.79 152.72 106.25Z" fill="#C85C1A" />
+            <path d="M84.6901 101.99C85.8401 96.9901 86.4501 91.79 86.4501 86.44C86.4501 60.84 72.5401 38.5 51.8701 26.54V146.34C57.7201 128.2 69.4001 112.68 84.6901 101.98V101.99Z" fill="#73A533" />
+          </svg>
+  );
+}
+
+/** Official mnemopay mark. */
+export function MnemopayMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" className={className} aria-hidden>
+            <rect width={64} height={64} rx={14} fill="#050710" />
+            <path d="M12 48V16l10 16 10-16 10 16 10-16v32" fill="none" stroke="#7AB8FF" strokeWidth={3} strokeLinejoin="round" strokeLinecap="round" />
+          </svg>
+  );
+}
+
+/** Official errand mark. */
+export function ErrandMark({ size = 16, className }: IconProps) {
+  return (
+    <img src="data:image/png;base64,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" width={size} height={size} className={className} alt="" />
+  );
+}
+
+/** Official agrenting mark. */
+export function AgrentingMark({ size = 16, className }: IconProps) {
+  return (
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAE+ElEQVR42uVVW2xUVRTd575n7sy0zPQxFQrt9MUrKvSnEIklRNEQjNEUCUGQGP3xy0eiYsLtIBAS7YdEomKUhGCiJWCIiUZRYYxokBYpY1sKSJ3bzqOdznTmzp37OPdx/ClJoTUQ/4z796ysvc5aO3sD/NcL3StQkiRqxdAQAgAYXL6cRKNRAgDk1jshBEF3NzoxgwEA6Oo94d6VmBBA8wkhAEiSJEqSJIoQgv7VDwgAQjMqe/btXmia5n0U5aKsSk309PQkZmPPvLQhpNB1dbSHC+o0JxKvkK1c3RhHd7GPHHnn7UYD8PO4rG4nNvYz4JJSESu5In0hq5Bjj3csohSKX2vQ/lYTxDrDobhqK21VaGkPxcNlNL8tBCGEyCcfHNziOtbDyFIfBcdsZMFRGMtd4JoIxoscDPz+J2YXhwsN969mUVH1cS5dnvaF6XhoRWpz/ruJKi0RoecLc/369eTTQ/vX0eCc5pHZ4WNxotZv/xZgiI8nTAWA8L05bbpWWakZ7o+LmiyfXeKB0+aEvKINMnymIcIEdQWqNfmrOQ1isRgQQtBgPNboYcy8wOG9YQ854aWJixw0CZr7jZ0qFV0bdxanslxKTsHVTFYrhlZGG0S302xaGLTC/nKrPDDMYLyHmcceQAgRADgHAOdGj+4UynxFTVl3LtAZrY8vms2EZTdm5TFOy2ZRZe0CSCvOg2Lh+kfB9qWB8ebFxcbR+F/ClNy95XCvzNw5UQghcuxAT7NIDIGvmJ4qCLQAN6dqqKzBcyLdaIP62PSNdCtWMF/TXEfyRRtVoxJpWRVun17ZmgqPyQO1I9f3bz3Se4kAIHr2xAAAnJR2d5iEaeIo3anUdKBSpUrWpgJerhxhzfxWrJSecLysyLc1giWKSNEtN7KmreDteEAOThR+qI337932ce8VIgGFYkDoWTNPNezp3p4O17/JGXam2VJkkRhQ6eQ9Xo/xDDIKr4e8ZJld7c8KbU0Z1eXFjEkcdmVLxvL5i+qvw+deGPjitbWf92WIJFEoGnMBABhCCILOTvr4ukd2pBYtecPOTvDCjURrjtab/VShFnntNTwQL8dxA9hvxfigeP5G2t0so8Amvb6ukE9MGle+7Y+kJ4zEoYm01tXVRaNo1LnN95OvHtw0sqxljz05vooeGjoouL6pGg9+z8eUIMRbn4U8+pERb5WlWKheDQSfMgLB1ThX0pIDg1z/pdH68WkdiRW+zpGbF/tm2w0AwJx5VmodDdY9WZETsT4yZk8xvPPW0Xff/zB6wOFpXyihTv70Bx1sJWxgh1PhXUgs4og//kIlRxJ1g44QzGiEQaxw+Npo3xxyAACmFPA9bTlVVstNEWMjjK+xqecO7XylRaUQUUPepaSyYRfF0ZSLHU0bSZatwasL8snJmmFG5MY0E3RsnxfE4L6ZhTe3AXBMpNLJkavhJiOEHxr3+tJlRSiss3kLgWsm9ExOziWTzWouHymbFlc0BZgSQpAvqmBazimKDbycSMQyM+Rz1jNjsnCKN5O7gsJppeDzXwYPrfkZ/WevpY35TO3sxf6EnlDcbXnb3qBitUo3dQPr1nWbMCdDociXQ0Mn8HzKbwv5qCQ1iBi3MGBg2lCSQlZObzx+pjwb2N7+Imua6SBCLo7Hv56exfeP5Hc5NATd8lWSJGoeYdQ9n8w7z2F3NErQXFWzQyTwv6m/AYvHmHKqYXquAAAAAElFTkSuQmCC" width={size} height={size} className={className} alt="" />
+  );
+}
+
+/** Official openclaw mark. */
+export function OpenclawMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" fill="#ff4d4d" className={className} aria-hidden>
+            <path d="M60 10C30 10 15 35 15 55C15 75 30 95 45 100L45 110L55 110L55 100C55 100 60 102 65 100L65 110L75 110L75 100C90 95 105 75 105 55C105 35 90 10 60 10Z" />
+            <path d="M20 45C5 40 0 50 5 60C10 70 20 65 25 55C28 48 25 45 20 45Z" />
+            <path d="M100 45C115 40 120 50 115 60C110 70 100 65 95 55C92 48 95 45 100 45Z" />
+          </svg>
+  );
+}
+
+/** Official paperclip mark. */
+export function PaperclipMark({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#e4e4e7" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+          </svg>
+  );
+}
+
 export function ProviderMark({ driverKind, size, className }: IconProps & { driverKind: string }) {
   switch (driverKind) {
     case "grok":
@@ -151,6 +298,64 @@ export function ProviderMark({ driverKind, size, className }: IconProps & { driv
       return <ComputerMark size={size} className={className} />;
     case "piAgent":
       return <PiMark size={size} className={className} />;
+    case "geminiAgent":
+    case "gemini":
+      return <GeminiMark size={size} className={className} />;
+
+    case "copilotAgent":
+    case "copilot":
+      return <CopilotMark size={size} className={className} />;
+
+    case "ollamaAgent":
+    case "ollama":
+      return <OllamaMark size={size} className={className} />;
+
+    case "openrouterAgent":
+    case "openrouter":
+      return <OpenrouterMark size={size} className={className} />;
+
+    case "minimaxAgent":
+    case "minimax":
+      return <MinimaxMark size={size} className={className} />;
+
+    case "clineAgent":
+    case "cline":
+      return <ClineMark size={size} className={className} />;
+
+    case "kiroAgent":
+    case "kiro":
+      return <KiroMark size={size} className={className} />;
+
+    case "lettaAgent":
+    case "letta":
+      return <LettaMark size={size} className={className} />;
+
+    case "ompAgent":
+    case "omp":
+      return <OmpMark size={size} className={className} />;
+
+    case "zihinAgent":
+    case "zihin":
+      return <ZihinMark size={size} className={className} />;
+
+    case "mnemopayAgent":
+    case "mnemopay":
+      return <MnemopayMark size={size} className={className} />;
+
+    case "errandAgent":
+    case "errand":
+      return <ErrandMark size={size} className={className} />;
+
+    case "agrentingAgent":
+    case "agrenting":
+      return <AgrentingMark size={size} className={className} />;
+
+    case "openclawAgent":
+    case "openclaw":
+      return <OpenclawMark size={size} className={className} />;
+
+    case "paperclip":
+      return <PaperclipMark size={size} className={className} />;
     default:
       return (
         <span className="flex size-full items-center justify-center text-[10px] font-semibold tracking-tight text-ink-secondary">
