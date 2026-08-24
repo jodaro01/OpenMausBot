@@ -3,6 +3,7 @@
 import type {
   AnyProviderDriver,
   DriverCreateInput,
+  EngineAccess,
   ModelCatalog,
   ProviderAdapter,
   ProviderInstance,
@@ -23,7 +24,7 @@ export interface OmniRouteDriverOptions {
   displayName: string;
   defaultModel?: string;
   models?: ModelCatalog;
-  access?: "subscription" | "api" | "free";
+  access?: EngineAccess;
 }
 
 const DESKTOP_TOOLS = [
@@ -240,7 +241,10 @@ export function createOmniRouteDriver(options: OmniRouteDriverOptions): AnyProvi
         for (const l of [...listeners]) l(e);
       };
 
-      const adapter: ProviderAdapter = {
+      const adapter: ProviderAdapter & {
+    snapshot: () => Promise<ProviderSnapshot>;
+    dispose: () => Promise<void>;
+  } = {
         provider: driverKind,
         capabilities: {
           sessionModelSwitch: "in-session",
@@ -260,7 +264,7 @@ export function createOmniRouteDriver(options: OmniRouteDriverOptions): AnyProvi
             state: "available",
             version: `${displayName} (OmniRoute Gateway)`,
             authenticated: true,
-            billing: access,
+            billing: access === "subscription" ? "subscription" : undefined,
           };
         },
 
@@ -335,7 +339,10 @@ export function createOmniRouteDriver(options: OmniRouteDriverOptions): AnyProvi
                   throw new Error(`OmniRoute error (HTTP ${res.status}): ${errText.slice(0, 200)}`);
                 }
 
-                const data = await res.json();
+                const data = (await res.json()) as {
+                  choices?: Array<{ message?: { content?: string; tool_calls?: unknown } }>;
+                  usage?: { prompt_tokens?: number; completion_tokens?: number };
+                };
                 const choice = data.choices?.[0];
                 const msg = choice?.message || {};
                 const usage = data.usage;
@@ -520,6 +527,13 @@ export function createOmniRouteDriver(options: OmniRouteDriverOptions): AnyProvi
           })();
 
           return { turnId };
+        },
+
+        respondToRequest: async () => "unavailable" as const,
+        hasSession: () => activeTurns.size > 0,
+        stopAll: async () => {
+          for (const { abort } of activeTurns.values()) abort();
+          activeTurns.clear();
         },
 
         async interruptTurn(threadId: string) {

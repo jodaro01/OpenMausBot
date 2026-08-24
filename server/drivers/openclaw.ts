@@ -45,7 +45,10 @@ export const OpenClawDriver: AnyProviderDriver = {
       for (const l of [...listeners]) l(e);
     };
 
-    const adapter: ProviderAdapter = {
+    const adapter: ProviderAdapter & {
+    snapshot: () => Promise<ProviderSnapshot>;
+    dispose: () => Promise<void>;
+  } = {
       provider: DRIVER_KIND,
       capabilities: { sessionModelSwitch: "unsupported" },
       onEvent(listener: RuntimeEventListener) {
@@ -93,7 +96,10 @@ export const OpenClawDriver: AnyProviderDriver = {
 
         return { turnId };
       },
-      async interrupt() {},
+      respondToRequest: async () => "unavailable" as const,
+      hasSession: () => false,
+      stopAll: async () => {},
+      async interruptTurn() {},
       async dispose() {
         listeners.clear();
       },

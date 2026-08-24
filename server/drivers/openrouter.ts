@@ -45,7 +45,10 @@ export const OpenRouterDriver: AnyProviderDriver = {
       for (const l of [...listeners]) l(e);
     };
 
-    const adapter: ProviderAdapter = {
+    const adapter: ProviderAdapter & {
+    snapshot: () => Promise<ProviderSnapshot>;
+    dispose: () => Promise<void>;
+  } = {
       provider: DRIVER_KIND,
       capabilities: { sessionModelSwitch: "unsupported" },
       onEvent(listener: RuntimeEventListener) {
@@ -53,7 +56,7 @@ export const OpenRouterDriver: AnyProviderDriver = {
         return () => listeners.delete(listener);
       },
       async snapshot(): Promise<ProviderSnapshot> {
-        return { state: "available", version: "OpenRouter v5.0 (300+ Models)", authenticated: true, billing: "api" };
+        return { state: "available", version: "OpenRouter v5.0 (300+ Models)", authenticated: true, billing: undefined };
       },
       async sendTurn(turnInput: SendTurnInput): Promise<TurnStartResult> {
         const turnId = `or-${newEventId()}`;
@@ -93,7 +96,10 @@ export const OpenRouterDriver: AnyProviderDriver = {
 
         return { turnId };
       },
-      async interrupt() {},
+      respondToRequest: async () => "unavailable" as const,
+      hasSession: () => false,
+      stopAll: async () => {},
+      async interruptTurn() {},
       async dispose() {
         listeners.clear();
       },

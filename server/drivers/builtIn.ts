@@ -22,9 +22,9 @@ export const ClineAgentDriver = createOmniRouteDriver({ driverKind: "clineAgent"
 export const KiroAgentDriver = createOmniRouteDriver({ driverKind: "kiroAgent", displayName: "Kiro Code" });
 export const CopilotAgentDriver = createOmniRouteDriver({ driverKind: "copilotAgent", displayName: "GitHub Copilot" });
 export const OpenClawDriver = createOmniRouteDriver({ driverKind: "openclawAgent", displayName: "OpenClaw Gateway" });
-export const OllamaDriver = createOmniRouteDriver({ driverKind: "ollamaAgent", displayName: "Ollama Local", access: "free" });
-export const OpenRouterDriver = createOmniRouteDriver({ driverKind: "openrouterAgent", displayName: "OpenRouter Gateway", access: "api" });
-export const MiniMaxDriver = createOmniRouteDriver({ driverKind: "minimaxAgent", displayName: "MiniMax Engine", access: "api" });
+export const OllamaDriver = createOmniRouteDriver({ driverKind: "ollamaAgent", displayName: "Ollama Local", access: "custom" });
+export const OpenRouterDriver = createOmniRouteDriver({ driverKind: "openrouterAgent", displayName: "OpenRouter Gateway", access: "custom" });
+export const MiniMaxDriver = createOmniRouteDriver({ driverKind: "minimaxAgent", displayName: "MiniMax Engine", access: "custom" });
 
 export const PiAgentDriver = createOmniRouteDriver({ driverKind: "piAgent", displayName: "Pi Code" });
 export const CursorAgentDriver = createOmniRouteDriver({ driverKind: "cursorAgent", displayName: "Cursor CLI" });

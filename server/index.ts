@@ -3381,7 +3381,7 @@ const server = createServer(async (req, res) => {
       // steer-queue drain above. Synchronous from the busy check to the
       // queue insert, so a settle can't slip between them and strand it.
       if (bot.busy) {
-        const message = queueSteeredMessage(store, bot, text);
+        const message = queueSteeredMessage(bot, text);
         return json(res, 202, { ok: true, queued: true, messageId: message.id });
       }
       await startTurn(bot.id, text);

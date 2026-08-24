@@ -24,7 +24,6 @@ import {
 } from "./container-computer.ts";
 import { isValidSshAlias, vpsSshAlias, type AppConfig } from "./config.ts";
 import { augmentedPath } from "./env-path.ts";
-import { SPAWNED_PROXIES } from "./proxy-paths.ts";
 
 export const VPS_IMAGE = CUA_IMAGE;
 export const VPS_MANAGED_LABEL = "com.openmausbot.vps";
@@ -756,7 +755,7 @@ export function vpsContainerMcpArgs(alias: string, containerName: string): strin
   );
 }
 
-export function vpsComputerMcp(cfg: AppConfig, botId: string, containerRef?: string): {
+export function vpsComputerMcp(cfg: AppConfig, _botId: string, _containerRef?: string): {
   command: string;
   args: string[];
   env: Record<string, string>;

@@ -37,7 +37,10 @@ function makeBridgeDriver(driverKind: string, displayName: string, defaultModel:
         for (const l of [...listeners]) l(e);
       };
 
-      const adapter: ProviderAdapter = {
+      const adapter: ProviderAdapter & {
+    snapshot: () => Promise<ProviderSnapshot>;
+    dispose: () => Promise<void>;
+  } = {
         provider: driverKind,
         capabilities: { sessionModelSwitch: "unsupported" },
         onEvent(listener: RuntimeEventListener) {
@@ -85,7 +88,10 @@ function makeBridgeDriver(driverKind: string, displayName: string, defaultModel:
 
           return { turnId };
         },
-        async interrupt() {},
+        respondToRequest: async () => "unavailable" as const,
+      hasSession: () => false,
+      stopAll: async () => {},
+      async interruptTurn() {},
         async dispose() {
           listeners.clear();
         },

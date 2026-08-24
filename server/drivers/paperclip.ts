@@ -107,7 +107,10 @@ export const PaperclipDriver: AnyProviderDriver = {
       createdAt: new Date().toISOString(),
     });
 
-    const adapter: ProviderAdapter = {
+    const adapter: ProviderAdapter & {
+    snapshot: () => Promise<ProviderSnapshot>;
+    dispose: () => Promise<void>;
+  } = {
       provider: DRIVER_KIND,
       capabilities: { sessionModelSwitch: "unsupported" },
       onEvent(listener: RuntimeEventListener) {

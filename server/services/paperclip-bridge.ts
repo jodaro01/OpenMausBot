@@ -59,18 +59,26 @@ export function startPaperclipBridge(bus: EventBus) {
 
   const publishText = (threadId: string, text: string) => {
     const turnId = `pc-${newEventId()}`;
+    const now = new Date().toISOString();
     bus.publish({
-      type: "item.completed",
+      eventId: newEventId(),
+      provider: "paperclip",
       threadId,
       turnId,
+      createdAt: now,
+      type: "item.completed",
       itemType: "assistant_text",
       text,
-    });
+    } as RuntimeEvent);
     bus.publish({
-      type: "turn.completed",
+      eventId: newEventId(),
+      provider: "paperclip",
       threadId,
       turnId,
-    });
+      createdAt: now,
+      type: "turn.completed",
+      ok: true,
+    } as RuntimeEvent);
   };
 
   const bootstrap = async () => {

@@ -56,7 +56,7 @@ export async function listVoices(key: string): Promise<Voice[]> {
       signal: AbortSignal.timeout(10_000),
     });
     if (res.ok) {
-      const body = await res.json();
+      const body = (await res.json()) as { voices?: Array<{ voice_id?: unknown; name?: unknown; labels?: { accent?: unknown; description?: unknown } }> };
       return (body?.voices ?? [])
         .map((v: any): Voice => ({
           id: String(v.voice_id ?? ""),

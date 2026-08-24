@@ -400,7 +400,7 @@ export async function containerComputerStatus(
       status.imageMatches =
         appleImage === IMAGE && status.image_id !== null && appleImageId === status.image_id;
       status.managed = containerLabelsMatch(detail?.configuration?.labels);
-      status.persistence = appleWorkspaceMountIsSafe(detail?.configuration?.mounts, platform)
+      status.persistence = appleWorkspaceMountIsSafe(detail?.configuration?.mounts)
         ? "durable"
         : "unsafe";
       const resources = detail?.configuration?.resources;
@@ -430,7 +430,7 @@ export async function containerComputerStatus(
         imageLabelsMatch(detail?.Config?.Labels) &&
         (detail?.Image === IMAGE || (status.image_id !== null && normalizeImageId(detail?.Image) === status.image_id));
       status.managed = containerLabelsMatch(detail?.Config?.Labels);
-      status.persistence = dockerWorkspaceMountIsSafe(detail?.Mounts, platform) ? "durable" : "unsafe";
+      status.persistence = dockerWorkspaceMountIsSafe(detail?.Mounts) ? "durable" : "unsafe";
       status.security = dockerSecurityIsHardened(detail?.HostConfig) ? "hardened" : "unsafe";
       status.viewer_url = viewerUrl(viewerPassword(detail?.Config?.Env));
     }
@@ -534,7 +534,7 @@ function applePortsAreLocal(
   );
 }
 
-function sameWorkspaceSource(source: string | undefined, platform: NodeJS.Platform): boolean {
+function sameWorkspaceSource(source: string | undefined): boolean {
   if (!source) return false;
   const actual = resolve(source);
   const expected = resolve(VM_WORKSPACE_DIR);
@@ -545,12 +545,11 @@ function dockerWorkspaceMountIsSafe(
   mounts:
     | Array<{ Type?: string; Source?: string; Destination?: string; RW?: boolean }>
     | undefined,
-  platform: NodeJS.Platform,
 ): boolean {
   return Boolean(
     mounts?.length === 1 &&
       mounts[0]?.Type === "bind" &&
-      sameWorkspaceSource(mounts[0]?.Source, platform) &&
+      sameWorkspaceSource(mounts[0]?.Source) &&
       mounts[0]?.Destination === VM_WORKSPACE_GUEST &&
       mounts[0]?.RW !== false,
   );
@@ -558,12 +557,11 @@ function dockerWorkspaceMountIsSafe(
 
 function appleWorkspaceMountIsSafe(
   mounts: Array<{ source?: string; destination?: string; options?: string[] }> | undefined,
-  platform: NodeJS.Platform,
 ): boolean {
   const options = mounts?.[0]?.options ?? [];
   return Boolean(
     mounts?.length === 1 &&
-      sameWorkspaceSource(mounts[0]?.source, platform) &&
+      sameWorkspaceSource(mounts[0]?.source) &&
       mounts[0]?.destination === VM_WORKSPACE_GUEST &&
       !options.some((option) => option === "ro" || option === "readonly"),
   );
@@ -849,6 +847,8 @@ type ContainerMcpLaunch = {
   command: string;
   args: string[];
   env: Record<string, string>;
+  platform: "darwin" | "linux" | "win32";
+  scope: "local-computer";
 };
 
 export function containerComputerMcp(
@@ -857,6 +857,8 @@ export function containerComputerMcp(
 ): ContainerMcpLaunch {
   return {
     command: process.execPath,
+    platform: process.platform as "darwin" | "linux" | "win32",
+    scope: "local-computer" as const,
     args: [containerMcpPath, runtime, CONTAINER, CUA_SOCKET],
     // The control pair rides in env, not argv — argv is world-readable
     // through `ps` for the life of the bridge.
